@@ -38,10 +38,22 @@ cp object_detection/packages/tf2/setup.py .
 python -m pip install --use-feature=2020-resolver .
 ```
 
+For installation with TF2.3 ( works better with tf2onnx 1.9) 
+```bash
+cd models/research
+# Compile protos.
+protoc object_detection/protos/*.proto --python_out=.
+# Install TensorFlow Object Detection API.
+cp object_detection/packages/tf2/setup_2.3.py setup.py
+python -m pip install --use-feature=2020-resolver .
+```
+
+
 ```bash
 # Test the installation.
 python object_detection/builders/model_builder_tf2_test.py
 ```
+Some tests may fail with TF2.3 based ( which is expected).
 
 ## Quick Start
 
@@ -69,6 +81,13 @@ To train and evaluate your models either locally or on Google Cloud see
 
 We provide a large collection of models that are trained on COCO 2017 in the
 [Model Zoo](tf2_detection_zoo.md).
+
+## Model Export (Fixed input resolution)
+Use following command to export the models without pre-processing assuming fixed size of input-image width and height 
+
+```bash
+python exporter_main_v2.py --input_type image_tensor --pipeline_config_path <path to pipeline.config> --trained_checkpoint_dir <path to checkpoint> --output_directory <path where saved_model will be created> -skip_preprocess -input_dims <fixed input width>,<fixed input height>
+```
 
 ## Guides
 
