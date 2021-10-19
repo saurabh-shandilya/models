@@ -194,12 +194,20 @@ def get_true_shapes(input_tensor):
 
 class DetectionFromFloatImageModule(DetectionInferenceModule):
   """Detection Inference Module for float image inputs."""
-
+  sig = [tf.TensorSpec(shape=[None, ExportOptions.height, ExportOptions.width, 3],
+                       dtype=tf.float32,
+                       name='input_tensor')]
   @tf.function(
-      input_signature=[
-          tf.TensorSpec(shape=[None, None, None, 3], dtype=tf.float32)])
+      input_signature=sig)
+
   def __call__(self, input_tensor):
-    images, true_shapes = self._preprocess_input(input_tensor, lambda x: x)
+    if ExportOptions.skip_preprocess:
+      images = input_tensor
+      input_shape = tf.shape(input_tensor)
+      input_shape_slice = tf.slice(input_shape, [1], [3])
+      true_shapes = tf.expand_dims(input_shape_slice, axis=0)
+    else:
+      images, true_shapes = self._preprocess_input(input_tensor, lambda x: x)
     return self._run_inference_on_images(images,
                                          true_shapes)
 
